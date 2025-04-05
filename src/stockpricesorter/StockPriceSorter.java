@@ -26,7 +26,7 @@ public class StockPriceSorter {
         System.out.println("Welcome to Stock Price Sorter.  This program will test three sorting algorithms - heap sort, quick sort, and merge sort - against datasets of various size to determine the best use case for each");
         String filePath = "S&P 500 Historical Data.csv";
 
-        // Optional: Show where Java is looking for the file
+        //Show where Java is looking for the file
         System.out.println("Looking for file at: " + new java.io.File(filePath).getAbsolutePath());
 
         FilteredData data = readAndFilterSP500Data(filePath);

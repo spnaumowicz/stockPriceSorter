@@ -1,2 +1,0 @@
-StockPriceSorter$FilteredData
-StockPriceSorter
