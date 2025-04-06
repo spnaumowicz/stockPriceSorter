@@ -1,5 +1,3 @@
-/* Authors: Amen Adio, Joon Han, Bethany Keller, Stefan Naumowicz, David Rando */
-
 package stockpricesorter;
 
 import com.opencsv.CSVParser;
@@ -22,11 +20,24 @@ public class StockPriceSorter {
         public LinkedList<String[]> oneYearList = new LinkedList<>();
     }
 
+    public static class SortResult {
+        public LinkedList<String[]> sortedList;
+        public int comparisons;
+        public int swaps;
+        public long runtimeMillis;
+
+        public SortResult(LinkedList<String[]> sortedList, int comparisons, int swaps, long runtimeMillis) {
+            this.sortedList = sortedList;
+            this.comparisons = comparisons;
+            this.swaps = swaps;
+            this.runtimeMillis = runtimeMillis;
+        }
+    }
+
     public static void main(String[] args) {
         System.out.println("Welcome to Stock Price Sorter.  This program will test three sorting algorithms - heap sort, quick sort, and merge sort - against datasets of various size to determine the best use case for each");
         String filePath = "S&P 500 Historical Data.csv";
 
-        //Show where Java is looking for the file
         System.out.println("Looking for file at: " + new java.io.File(filePath).getAbsolutePath());
 
         FilteredData data = readAndFilterSP500Data(filePath);
@@ -44,7 +55,6 @@ public class StockPriceSorter {
         SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd");
 
         try {
-            // Configure CSV parser to handle quoted commas correctly
             CSVParser parser = new CSVParserBuilder()
                     .withSeparator(',')
                     .withIgnoreQuotations(false)
@@ -60,16 +70,13 @@ public class StockPriceSorter {
                 while ((row = reader.readNext()) != null) {
                     if (isFirstRow) {
                         isFirstRow = false;
-                        continue; // Skip header
+                        continue;
                     }
 
-                    // Skip rows that are incomplete
                     if (row.length < 7 || row[0].trim().isEmpty()) {
-                        continue; // Only skip if date is missing or row is malformed
+                        continue;
                     }
 
-
-                    // Parse and reformat date
                     Date parsedDate;
                     try {
                         parsedDate = inputFormat.parse(row[0].replace("\"", "").trim());
@@ -77,7 +84,7 @@ public class StockPriceSorter {
                         continue;
                     }
 
-                    row[0] = outputFormat.format(parsedDate);  // Convert date to yyyymmdd format
+                    row[0] = outputFormat.format(parsedDate);
 
                     result.tenYearList.add(row);
 
@@ -99,5 +106,69 @@ public class StockPriceSorter {
         }
 
         return result;
+    }
+
+    public static LinkedList<String[]> fullyRandomize(LinkedList<String[]> data) {
+        // This method completely randomizes the order of the linked list
+        Collections.shuffle(data);
+        return data;
+    }
+
+    public static LinkedList<String[]> partiallyRandomize(LinkedList<String[]> data) {
+        // This method swaps 25% of the elements in the linked list to partially randomize it
+        int swapCount = data.size() / 4;
+        Random rand = new Random();
+        for (int i = 0; i < swapCount; i++) {
+            int index1 = rand.nextInt(data.size());
+            int index2 = rand.nextInt(data.size());
+            Collections.swap(data, index1, index2);
+        }
+        return data;
+    }
+
+    public static LinkedList<String[]> reverseList(LinkedList<String[]> data) {
+        // This method reverses the order of elements in the linked list
+        Collections.reverse(data);
+        return data;
+    }
+
+    public static SortResult runQuickSort(LinkedList<String[]> data) {
+        // This method applies the quick sort algorithm to the linked list and returns performance data
+        int comparisons = 0;
+        int swaps = 0;
+        long startTime = System.currentTimeMillis();
+
+        // Sorting logic goes here
+
+        long endTime = System.currentTimeMillis();
+        return new SortResult(data, comparisons, swaps, endTime - startTime);
+    }
+
+    public static SortResult runMergeSort(LinkedList<String[]> data) {
+        // This method applies the merge sort algorithm to the linked list and returns performance data
+        int comparisons = 0;
+        int swaps = 0;
+        long startTime = System.currentTimeMillis();
+
+        // Sorting logic goes here
+
+        long endTime = System.currentTimeMillis();
+        return new SortResult(data, comparisons, swaps, endTime - startTime);
+    }
+
+    public static SortResult runHeapSort(LinkedList<String[]> data) {
+        // This method applies the heap sort algorithm to the linked list and returns performance data
+        int comparisons = 0;
+        int swaps = 0;
+        long startTime = System.currentTimeMillis();
+
+        // Sorting logic goes here
+
+        long endTime = System.currentTimeMillis();
+        return new SortResult(data, comparisons, swaps, endTime - startTime);
+    }
+    
+    public static void displayResults(SortResult result) {
+        // This method will display the contents of the SortResult object including comparisons, swaps, and runtime
     }
 }
