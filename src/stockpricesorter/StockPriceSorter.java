@@ -169,11 +169,13 @@ public class StockPriceSorter {
 
     // Updated versions using StockData
     public static List<StockData> fullyRandomize(List<StockData> data) {
+        // This method completely randomizes the order of the linked list
         Collections.shuffle(data);
         return data;
     }
 
     public static List<StockData> partiallyRandomize(List<StockData> data) {
+        // This method swaps 25% of the elements in the linked list to partially randomize it
         int swapCount = data.size() / 4;
         Random rand = new Random();
         for (int i = 0; i < swapCount; i++) {
@@ -185,6 +187,7 @@ public class StockPriceSorter {
     }
 
     public static List<StockData> reverseList(List<StockData> data) {
+        // This method reverses the order of elements in the linked list
         Collections.reverse(data);
         return data;
     }
@@ -193,6 +196,7 @@ public class StockPriceSorter {
 
     // Original QuickSort placeholder
     public static SortResult runQuickSort(LinkedList<String[]> data) {
+        // This method applies the quick sort algorithm to the linked list and returns performance data
         int comparisons = 0;
         int swaps = 0;
         long startTime = System.currentTimeMillis();
@@ -205,6 +209,7 @@ public class StockPriceSorter {
 
     // Original MergeSort placeholder
     public static SortResult runMergeSort(LinkedList<String[]> data) {
+        // This method applies the merge sort algorithm to the linked list and returns performance data
         int comparisons = 0;
         int swaps = 0;
         long startTime = System.currentTimeMillis();
@@ -217,6 +222,7 @@ public class StockPriceSorter {
 
     // Original HeapSort placeholder
     public static SortResult runHeapSort(LinkedList<String[]> data) {
+        // This method applies the heap sort algorithm to the linked list and returns performance data
         int comparisons = 0;
         int swaps = 0;
         long startTime = System.currentTimeMillis();
@@ -228,6 +234,7 @@ public class StockPriceSorter {
     }
 
     public static void displayResults(SortResult result) {
+        // This method will display the contents of the SortResult object including comparisons, swaps, and runtime
         System.out.println("Sorted List Size: " + result.sortedList.size());
         System.out.println("Comparisons: " + result.comparisons);
         System.out.println("Swaps: " + result.swaps);
