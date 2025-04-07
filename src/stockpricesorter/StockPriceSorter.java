@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import stockpricesorter.StockData;
 import stockpricesorter.MergeSort;
+import stockpricesorter.HeapSort;
 
 public class StockPriceSorter {
 
@@ -271,15 +272,12 @@ public class StockPriceSorter {
 
     // Updated HeapSort
     public static SortResult runHeapSort(List<StockData> data) {
-        // This method applies the heap sort algorithm to the list and returns performance data
-        int comparisons = 0;
-        int swaps = 0;
-        long startTime = System.currentTimeMillis();
+        // This method uses the HeapSort class to sort the StockData list
+        // Specify the comparator based on the metric you want (e.g., gain, percent change, or close)
+        Comparator<StockData> comparator = Comparator.comparingDouble(StockData::getGain);  // Example: Sorting by gain
 
-        // Sorting logic goes here
-
-        long endTime = System.currentTimeMillis();
-        return new SortResult(data, comparisons, swaps, endTime - startTime);
+        // Call the runHeapSort method from HeapSort.java
+        return HeapSort.runHeapSort(data, comparator);  // The HeapSort class handles sorting and returns the result
     }
 
     public static void displayResults(SortResult result) {
