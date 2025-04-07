@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import stockpricesorter.StockData;
+import stockpricesorter.MergeSort;
 
 public class StockPriceSorter {
 
@@ -247,16 +249,24 @@ public class StockPriceSorter {
     }
 
     // Updated MergeSort
-    public static SortResult runMergeSort(List<StockData> data) {
+    public static SortResult runMergeSort(List<StockData> data, String metric) {
         // This method applies the merge sort algorithm to the list and returns performance data
-        int comparisons = 0;
-        int swaps = 0;
-        long startTime = System.currentTimeMillis();
+        //int comparisons = 0;
+        //int swaps = 0;
+        //long startTime = System.currentTimeMillis();
+
+        //New Code using MergeSort.java
+        return MergeSort.runMergeSort(data, metric);
+        //NOTE: we can call it by
+        //SortResult result = runMergeSort(data.tenYearList, "gain");
+        //displayResults(result);
+
+        
 
         // Sorting logic goes here
 
-        long endTime = System.currentTimeMillis();
-        return new SortResult(data, comparisons, swaps, endTime - startTime);
+        //long endTime = System.currentTimeMillis();
+        //return new SortResult(data, comparisons, swaps, endTime - startTime);
     }
 
     // Updated HeapSort
