@@ -15,18 +15,34 @@ import java.util.*;
 public class StockPriceSorter {
 
     public static class FilteredData {
-        public LinkedList<String[]> tenYearList = new LinkedList<>();
-        public LinkedList<String[]> fiveYearList = new LinkedList<>();
-        public LinkedList<String[]> oneYearList = new LinkedList<>();
+        // Original version
+        // public LinkedList<String[]> tenYearList = new LinkedList<>();
+        // public LinkedList<String[]> fiveYearList = new LinkedList<>();
+        // public LinkedList<String[]> oneYearList = new LinkedList<>();
+
+        // Updated version using StockData
+        public LinkedList<StockData> tenYearList = new LinkedList<>();
+        public LinkedList<StockData> fiveYearList = new LinkedList<>();
+        public LinkedList<StockData> oneYearList = new LinkedList<>();
     }
 
     public static class SortResult {
-        public LinkedList<String[]> sortedList;
+        // Original version
+        // public LinkedList<String[]> sortedList;
+        // public SortResult(LinkedList<String[]> sortedList, int comparisons, int swaps, long runtimeMillis) {
+        //     this.sortedList = sortedList;
+        //     this.comparisons = comparisons;
+        //     this.swaps = swaps;
+        //     this.runtimeMillis = runtimeMillis;
+        // }
+
+        // Updated version using StockData
+        public List<StockData> sortedList;
         public int comparisons;
         public int swaps;
         public long runtimeMillis;
 
-        public SortResult(LinkedList<String[]> sortedList, int comparisons, int swaps, long runtimeMillis) {
+        public SortResult(List<StockData> sortedList, int comparisons, int swaps, long runtimeMillis) {
             this.sortedList = sortedList;
             this.comparisons = comparisons;
             this.swaps = swaps;
@@ -35,7 +51,7 @@ public class StockPriceSorter {
     }
 
     public static void main(String[] args) {
-        System.out.println("Welcome to Stock Price Sorter.  This program will test three sorting algorithms - heap sort, quick sort, and merge sort - against datasets of various size to determine the best use case for each");
+        System.out.println("Welcome to Stock Price Sorter. This program will test three sorting algorithms: heap sort, quick sort, and merge sort, against datasets of various sizes to determine the best use case for each.");
         String filePath = "S&P 500 Historical Data.csv";
 
         System.out.println("Looking for file at: " + new java.io.File(filePath).getAbsolutePath());
@@ -86,17 +102,38 @@ public class StockPriceSorter {
 
                     row[0] = outputFormat.format(parsedDate);
 
-                    result.tenYearList.add(row);
+                    // Original code using String[]
+                    // result.tenYearList.add(row);
+                    // Date fiveYearsAgo = inputFormat.parse("03/28/2020");
+                    // Date oneYearAgo = inputFormat.parse("03/28/2024");
+                    // if (!parsedDate.before(fiveYearsAgo)) {
+                    //     result.fiveYearList.add(row);
+                    // }
+                    // if (!parsedDate.before(oneYearAgo)) {
+                    //     result.oneYearList.add(row);
+                    // }
 
-                    Date fiveYearsAgo = inputFormat.parse("03/28/2020");
-                    Date oneYearAgo = inputFormat.parse("03/28/2024");
+                    // Updated version using StockData
+                    try {
+                        double open = Double.parseDouble(row[1].replace(",", ""));
+                        double close = Double.parseDouble(row[4].replace(",", ""));
+                        StockData stock = new StockData(row[0], open, close);
 
-                    if (!parsedDate.before(fiveYearsAgo)) {
-                        result.fiveYearList.add(row);
-                    }
+                        result.tenYearList.add(stock);
 
-                    if (!parsedDate.before(oneYearAgo)) {
-                        result.oneYearList.add(row);
+                        Date fiveYearsAgo = inputFormat.parse("03/28/2020");
+                        Date oneYearAgo = inputFormat.parse("03/28/2024");
+
+                        if (!parsedDate.before(fiveYearsAgo)) {
+                            result.fiveYearList.add(stock);
+                        }
+
+                        if (!parsedDate.before(oneYearAgo)) {
+                            result.oneYearList.add(stock);
+                        }
+
+                    } catch (NumberFormatException e) {
+                        continue;
                     }
                 }
 
@@ -108,14 +145,35 @@ public class StockPriceSorter {
         return result;
     }
 
-    public static LinkedList<String[]> fullyRandomize(LinkedList<String[]> data) {
-        // This method completely randomizes the order of the linked list
+    // Original versions using String[]
+//     public static LinkedList<String[]> fullyRandomize(LinkedList<String[]> data) {
+//         Collections.shuffle(data);
+//         return data;
+//     }
+
+//     public static LinkedList<String[]> partiallyRandomize(LinkedList<String[]> data) {
+//         int swapCount = data.size() / 4;
+//         Random rand = new Random();
+//         for (int i = 0; i < swapCount; i++) {
+//             int index1 = rand.nextInt(data.size());
+//             int index2 = rand.nextInt(data.size());
+//             Collections.swap(data, index1, index2);
+//         }
+//         return data;
+//     }
+
+//     public static LinkedList<String[]> reverseList(LinkedList<String[]> data) {
+//         Collections.reverse(data);
+//         return data;
+//     }
+
+    // Updated versions using StockData
+    public static List<StockData> fullyRandomize(List<StockData> data) {
         Collections.shuffle(data);
         return data;
     }
 
-    public static LinkedList<String[]> partiallyRandomize(LinkedList<String[]> data) {
-        // This method swaps 25% of the elements in the linked list to partially randomize it
+    public static List<StockData> partiallyRandomize(List<StockData> data) {
         int swapCount = data.size() / 4;
         Random rand = new Random();
         for (int i = 0; i < swapCount; i++) {
@@ -126,14 +184,15 @@ public class StockPriceSorter {
         return data;
     }
 
-    public static LinkedList<String[]> reverseList(LinkedList<String[]> data) {
-        // This method reverses the order of elements in the linked list
+    public static List<StockData> reverseList(List<StockData> data) {
         Collections.reverse(data);
         return data;
     }
 
+    // Sorting method placeholders
+
+    // Original QuickSort placeholder
     public static SortResult runQuickSort(LinkedList<String[]> data) {
-        // This method applies the quick sort algorithm to the linked list and returns performance data
         int comparisons = 0;
         int swaps = 0;
         long startTime = System.currentTimeMillis();
@@ -144,8 +203,8 @@ public class StockPriceSorter {
         return new SortResult(data, comparisons, swaps, endTime - startTime);
     }
 
+    // Original MergeSort placeholder
     public static SortResult runMergeSort(LinkedList<String[]> data) {
-        // This method applies the merge sort algorithm to the linked list and returns performance data
         int comparisons = 0;
         int swaps = 0;
         long startTime = System.currentTimeMillis();
@@ -156,8 +215,8 @@ public class StockPriceSorter {
         return new SortResult(data, comparisons, swaps, endTime - startTime);
     }
 
+    // Original HeapSort placeholder
     public static SortResult runHeapSort(LinkedList<String[]> data) {
-        // This method applies the heap sort algorithm to the linked list and returns performance data
         int comparisons = 0;
         int swaps = 0;
         long startTime = System.currentTimeMillis();
@@ -167,8 +226,11 @@ public class StockPriceSorter {
         long endTime = System.currentTimeMillis();
         return new SortResult(data, comparisons, swaps, endTime - startTime);
     }
-    
+
     public static void displayResults(SortResult result) {
-        // This method will display the contents of the SortResult object including comparisons, swaps, and runtime
+        System.out.println("Sorted List Size: " + result.sortedList.size());
+        System.out.println("Comparisons: " + result.comparisons);
+        System.out.println("Swaps: " + result.swaps);
+        System.out.println("Runtime (ms): " + result.runtimeMillis);
     }
 }
