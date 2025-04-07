@@ -1,3 +1,5 @@
+package stockpricesorter;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -18,7 +20,7 @@ public class MergeSort {
 
     private static void mergeSort(List<StockData> list, int left, int right, Comparator<StockData> comparator, SortStats stats) {
         if (left < right) {
-            int mid = left + (right - left) / 2; // Avoid integer overflow
+            int mid = left + (right - left) / 2;
             mergeSort(list, left, mid, comparator, stats);
             mergeSort(list, mid + 1, right, comparator, stats);
             merge(list, left, mid, right, comparator, stats);
@@ -29,9 +31,7 @@ public class MergeSort {
         List<StockData> temp = new ArrayList<>(right - left + 1);
         int i = left;
         int j = mid + 1;
-        int k = 0;
 
-        // Merge the two sublists into temp
         while (i <= mid && j <= right) {
             stats.comparisons++;
             if (comparator.compare(list.get(i), list.get(j)) <= 0) {
@@ -42,19 +42,16 @@ public class MergeSort {
             stats.moves++;
         }
 
-        // Copy remaining elements from left sublist
         while (i <= mid) {
             temp.add(list.get(i++));
             stats.moves++;
         }
 
-        // Copy remaining elements from right sublist
         while (j <= right) {
             temp.add(list.get(j++));
             stats.moves++;
         }
 
-        // Copy back to original list
         for (int m = 0; m < temp.size(); m++) {
             list.set(left + m, temp.get(m));
         }
@@ -69,12 +66,8 @@ public class MergeSort {
         };
     }
 
-    // Record to hold sorting statistics
     private static class SortStats {
         int comparisons = 0;
-        int moves = 0; // Renamed from "swaps" to better reflect the operation
+        int moves = 0;
     }
 }
-
-// Assuming this is the SortResult class
-record SortResult(List<StockData> sortedList, int comparisons, int moves, long timeMs) {}
