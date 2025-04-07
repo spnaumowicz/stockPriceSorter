@@ -51,7 +51,7 @@ public class StockPriceSorter {
     }
 
     public static void main(String[] args) {
-        System.out.println("Welcome to Stock Price Sorter. This program will test three sorting algorithms: heap sort, quick sort, and merge sort, against datasets of various sizes to determine the best use case for each.");
+        System.out.println("Welcome to Stock Price Sorter. This program will test three sorting algorithms: heap sort, quick sort, and merge sort, against datasets of various sizes to determine the best one.");
         String filePath = "S&P 500 Historical Data.csv";
 
         System.out.println("Looking for file at: " + new java.io.File(filePath).getAbsolutePath());
@@ -146,26 +146,26 @@ public class StockPriceSorter {
     }
 
     // Original versions using String[]
-//     public static LinkedList<String[]> fullyRandomize(LinkedList<String[]> data) {
-//         Collections.shuffle(data);
-//         return data;
-//     }
+    // public static LinkedList<String[]> fullyRandomize(LinkedList<String[]> data) {
+    //     Collections.shuffle(data);
+    //     return data;
+    // }
 
-//     public static LinkedList<String[]> partiallyRandomize(LinkedList<String[]> data) {
-//         int swapCount = data.size() / 4;
-//         Random rand = new Random();
-//         for (int i = 0; i < swapCount; i++) {
-//             int index1 = rand.nextInt(data.size());
-//             int index2 = rand.nextInt(data.size());
-//             Collections.swap(data, index1, index2);
-//         }
-//         return data;
-//     }
+    // public static LinkedList<String[]> partiallyRandomize(LinkedList<String[]> data) {
+    //     int swapCount = data.size() / 4;
+    //     Random rand = new Random();
+    //     for (int i = 0; i < swapCount; i++) {
+    //         int index1 = rand.nextInt(data.size());
+    //         int index2 = rand.nextInt(data.size());
+    //         Collections.swap(data, index1, index2);
+    //     }
+    //     return data;
+    // }
 
-//     public static LinkedList<String[]> reverseList(LinkedList<String[]> data) {
-//         Collections.reverse(data);
-//         return data;
-//     }
+    // public static LinkedList<String[]> reverseList(LinkedList<String[]> data) {
+    //     Collections.reverse(data);
+    //     return data;
+    // }
 
     // Updated versions using StockData
     public static List<StockData> fullyRandomize(List<StockData> data) {
@@ -195,21 +195,47 @@ public class StockPriceSorter {
     // Sorting method placeholders
 
     // Original QuickSort placeholder
-    public static SortResult runQuickSort(LinkedList<String[]> data) {
-        // This method applies the quick sort algorithm to the linked list and returns performance data
-        int comparisons = 0;
-        int swaps = 0;
-        long startTime = System.currentTimeMillis();
-
-        // Sorting logic goes here
-
-        long endTime = System.currentTimeMillis();
-        return new SortResult(data, comparisons, swaps, endTime - startTime);
-    }
+    // public static SortResult runQuickSort(LinkedList<String[]> data) {
+    //     // This method applies the quick sort algorithm to the linked list and returns performance data
+    //     int comparisons = 0;
+    //     int swaps = 0;
+    //     long startTime = System.currentTimeMillis();
+    //
+    //     // Sorting logic goes here
+    //
+    //     long endTime = System.currentTimeMillis();
+    //     return new SortResult(data, comparisons, swaps, endTime - startTime);
+    // }
 
     // Original MergeSort placeholder
-    public static SortResult runMergeSort(LinkedList<String[]> data) {
-        // This method applies the merge sort algorithm to the linked list and returns performance data
+    // public static SortResult runMergeSort(LinkedList<String[]> data) {
+    //     // This method applies the merge sort algorithm to the linked list and returns performance data
+    //     int comparisons = 0;
+    //     int swaps = 0;
+    //     long startTime = System.currentTimeMillis();
+    //
+    //     // Sorting logic goes here
+    //
+    //     long endTime = System.currentTimeMillis();
+    //     return new SortResult(data, comparisons, swaps, endTime - startTime);
+    // }
+
+    // Original HeapSort placeholder
+    // public static SortResult runHeapSort(LinkedList<String[]> data) {
+    //     // This method applies the heap sort algorithm to the linked list and returns performance data
+    //     int comparisons = 0;
+    //     int swaps = 0;
+    //     long startTime = System.currentTimeMillis();
+    //
+    //     // Sorting logic goes here
+    //
+    //     long endTime = System.currentTimeMillis();
+    //     return new SortResult(data, comparisons, swaps, endTime - startTime);
+    // }
+
+    // Updated QuickSort
+    public static SortResult runQuickSort(List<StockData> data) {
+        // This method applies the quick sort algorithm to the list and returns performance data
         int comparisons = 0;
         int swaps = 0;
         long startTime = System.currentTimeMillis();
@@ -220,9 +246,22 @@ public class StockPriceSorter {
         return new SortResult(data, comparisons, swaps, endTime - startTime);
     }
 
-    // Original HeapSort placeholder
-    public static SortResult runHeapSort(LinkedList<String[]> data) {
-        // This method applies the heap sort algorithm to the linked list and returns performance data
+    // Updated MergeSort
+    public static SortResult runMergeSort(List<StockData> data) {
+        // This method applies the merge sort algorithm to the list and returns performance data
+        int comparisons = 0;
+        int swaps = 0;
+        long startTime = System.currentTimeMillis();
+
+        // Sorting logic goes here
+
+        long endTime = System.currentTimeMillis();
+        return new SortResult(data, comparisons, swaps, endTime - startTime);
+    }
+
+    // Updated HeapSort
+    public static SortResult runHeapSort(List<StockData> data) {
+        // This method applies the heap sort algorithm to the list and returns performance data
         int comparisons = 0;
         int swaps = 0;
         long startTime = System.currentTimeMillis();
