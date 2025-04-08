@@ -9,3 +9,5 @@
 -> SortResultsPrinter should work fine, but will need some improvements or additional features.
 
 -> ResultsVisualizer needs to be developed. This is just a placeholder.
+
+[04/07/2025] Created QuickSort.java -David
