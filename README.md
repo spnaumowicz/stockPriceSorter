@@ -8,4 +8,4 @@
 
 -> SortResultsPrinter should work fine, but will need some improvements or additional features.
 
--> ResultsVisualizer needs to be developed. This is just a placehodler.
+-> ResultsVisualizer needs to be developed. This is just a placeholder.
