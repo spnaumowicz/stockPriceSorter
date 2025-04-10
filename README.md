@@ -11,3 +11,5 @@
 -> ResultsVisualizer needs to be developed. This is just a placeholder.
 
 [04/07/2025] Created QuickSort.java -David
+
+[04/09/2025] Created SortPerformanceTester.java - Joon
