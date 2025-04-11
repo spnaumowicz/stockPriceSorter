@@ -28,7 +28,7 @@ public class HeapSort {
         }
 
         long endTime = System.nanoTime();
-        return new SortResult(list, stats.comparisons, stats.moves, (endTime - startTime) / 1_000_000);
+        return new SortResult(list, stats.getComparisons(), stats.getMoves(), (endTime - startTime) / 1_000_000);
     }
 
     private static void heapify(List<StockData> list, int size, int root, Comparator<StockData> comparator, SortStats stats) {
@@ -69,5 +69,8 @@ public class HeapSort {
     private static class SortStats {
         int comparisons = 0;
         int moves = 0;
+
+        int getComparisons() { return comparisons; }
+        int getMoves() { return moves; }
     }
 }
