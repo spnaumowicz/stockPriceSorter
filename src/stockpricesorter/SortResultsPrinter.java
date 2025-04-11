@@ -1,9 +1,9 @@
-package stockpricesorter;
+import stockpricesorter.StockPriceSorter;
 
 public class SortResultsPrinter {
 
     // This is a simple output helper for printing sort results to the console
-    public static void printSummary(SortPriceSorter.SortResult result, String algorithm, String metric) {
+    public static void printSummary(StockPriceSorter.SortResult result, String algorithm, String metric) {
         System.out.println("=== Sort Summary ===");
         System.out.println("Algorithm      : " + algorithm);
         System.out.println("Sorted by      : " + metric);
