@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import stockpricesorter.StockData;
-import stockpricesorter.StockPriceSorter.SortResult;
+import stockpricesorter.StockPriceSorter;
 
 public class MergeSort {
 
-    public static SortResult runMergeSort(List<StockData> data, String metric) {
-        List<StockData> list = new ArrayList<>(data); // Create copy to avoid mutating original
+    public static StockPriceSorter.SortResult runMergeSort(List<StockData> data, String metric) {
+        List<StockData> list = new ArrayList<>(data); // Avoid modifying original data
         SortStats stats = new SortStats();
         long startTime = System.nanoTime();
 
@@ -17,10 +17,16 @@ public class MergeSort {
         mergeSort(list, 0, list.size() - 1, comparator, stats);
 
         long endTime = System.nanoTime();
-        return new SortResult(list, stats.comparisons, stats.moves, (endTime - startTime) / 1_000_000);
+        return new StockPriceSorter.SortResult(
+                list,
+                stats.getComparisons(),
+                stats.getMoves(),
+                (endTime - startTime) / 1_000_000
+        );
     }
 
-    private static void mergeSort(List<StockData> list, int left, int right, Comparator<StockData> comparator, SortStats stats) {
+    private static void mergeSort(List<StockData> list, int left, int right,
+                                  Comparator<StockData> comparator, SortStats stats) {
         if (left < right) {
             int mid = left + (right - left) / 2;
             mergeSort(list, left, mid, comparator, stats);
@@ -29,29 +35,29 @@ public class MergeSort {
         }
     }
 
-    private static void merge(List<StockData> list, int left, int mid, int right, Comparator<StockData> comparator, SortStats stats) {
+    private static void merge(List<StockData> list, int left, int mid, int right,
+                              Comparator<StockData> comparator, SortStats stats) {
         List<StockData> temp = new ArrayList<>(right - left + 1);
-        int i = left;
-        int j = mid + 1;
+        int i = left, j = mid + 1;
 
         while (i <= mid && j <= right) {
-            stats.comparisons++;
+            stats.incrementComparisons();
             if (comparator.compare(list.get(i), list.get(j)) <= 0) {
                 temp.add(list.get(i++));
             } else {
                 temp.add(list.get(j++));
             }
-            stats.moves++;
+            stats.incrementMoves();
         }
 
         while (i <= mid) {
             temp.add(list.get(i++));
-            stats.moves++;
+            stats.incrementMoves();
         }
 
         while (j <= right) {
             temp.add(list.get(j++));
-            stats.moves++;
+            stats.incrementMoves();
         }
 
         for (int m = 0; m < temp.size(); m++) {
@@ -64,12 +70,18 @@ public class MergeSort {
             case "gain" -> Comparator.comparingDouble(StockData::getGain);
             case "percent" -> Comparator.comparingDouble(StockData::getPercentChange);
             case "close" -> Comparator.comparingDouble(StockData::getClose);
-            default -> throw new IllegalArgumentException("Invalid metric: " + metric + ". Use 'gain', 'percent', or 'close'.");
+            default -> throw new IllegalArgumentException("Invalid metric: " + metric);
         };
     }
 
+    // Internal helper class to track comparisons and moves
     private static class SortStats {
-        int comparisons = 0;
-        int moves = 0;
+        private int comparisons = 0;
+        private int moves = 0;
+
+        public void incrementComparisons() { comparisons++; }
+        public void incrementMoves() { moves++; }
+        public int getComparisons() { return comparisons; }
+        public int getMoves() { return moves; }
     }
 }
