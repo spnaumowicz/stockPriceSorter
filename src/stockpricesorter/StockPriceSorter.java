@@ -14,10 +14,6 @@ import java.util.*;
 
 import org.jfree.data.category.DefaultCategoryDataset;
 
-import stockpricesorter.StockData;
-import stockpricesorter.MergeSort;
-import stockpricesorter.HeapSort;
-
 public class StockPriceSorter {
 
     public static class FilteredData {

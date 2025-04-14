@@ -1,3 +1,4 @@
+package stockpricesorter;
 import stockpricesorter.StockPriceSorter;
 
 public class SortResultsPrinter {
