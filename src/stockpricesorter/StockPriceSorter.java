@@ -52,7 +52,9 @@ public class StockPriceSorter {
         String[] datasets = {"tenYear", "fiveYear", "oneYear"};
         String[] dataTypes = {"Reversed", "Randomized", "PartiallyRand"};
 
-        Map<String, DefaultCategoryDataset> chartMap = new HashMap<>();
+        Map<String, DefaultCategoryDataset> timeChartMap = new HashMap<>();
+        Map<String, DefaultCategoryDataset> swapsChartMap = new HashMap<>();
+        Map<String, DefaultCategoryDataset> comparisonsChartMap = new HashMap<>();
 
         for (String metric : metrics) {
             for (String period : datasets) {
@@ -82,20 +84,29 @@ public class StockPriceSorter {
                     printTableRow("QuickSort", type, quick);
 
                     String label = period + "-" + metric + " (" + type + ")";
-                    chartMap.computeIfAbsent("HeapSort", k -> new DefaultCategoryDataset()).addValue(heap.runtimeMicros, "HeapSort", label);
-                    chartMap.computeIfAbsent("MergeSort", k -> new DefaultCategoryDataset()).addValue(merge.runtimeMicros, "MergeSort", label);
-                    chartMap.computeIfAbsent("QuickSort", k -> new DefaultCategoryDataset()).addValue(quick.runtimeMicros, "QuickSort", label);
+                    timeChartMap.computeIfAbsent("HeapSort", k -> new DefaultCategoryDataset()).addValue(heap.runtimeMicros, "HeapSort", label);
+                    timeChartMap.computeIfAbsent("MergeSort", k -> new DefaultCategoryDataset()).addValue(merge.runtimeMicros, "MergeSort", label);
+                    timeChartMap.computeIfAbsent("QuickSort", k -> new DefaultCategoryDataset()).addValue(quick.runtimeMicros, "QuickSort", label);
+
+                    swapsChartMap.computeIfAbsent("HeapSort", k -> new DefaultCategoryDataset()).addValue(heap.swaps, "HeapSort", label);
+                    swapsChartMap.computeIfAbsent("MergeSort", k -> new DefaultCategoryDataset()).addValue(merge.swaps, "MergeSort", label);
+                    swapsChartMap.computeIfAbsent("QuickSort", k -> new DefaultCategoryDataset()).addValue(quick.swaps, "QuickSort", label);
+
+                    comparisonsChartMap.computeIfAbsent("HeapSort", k -> new DefaultCategoryDataset()).addValue(heap.comparisons, "HeapSort", label);
+                    comparisonsChartMap.computeIfAbsent("MergeSort", k -> new DefaultCategoryDataset()).addValue(merge.comparisons, "MergeSort", label);
+                    comparisonsChartMap.computeIfAbsent("QuickSort", k -> new DefaultCategoryDataset()).addValue(quick.comparisons, "QuickSort", label);
                 }
             }
         }
 
-        JFreeChart lineChart = ChartFactory.createLineChart(
-                "Sorting Algorithm Performance (All Data Types)",
-                "Test Case", "Time (μs)",
-                combineDatasets(chartMap), PlotOrientation.VERTICAL,
-                true, true, false);
+        showLineChart("Sorting Algorithm Runtime (μs)", "Test Case", "Time (μs)", combineDatasets(timeChartMap), "Sorting Times by Algorithm");
+        showLineChart("Sorting Algorithm Swaps", "Test Case", "Swaps", combineDatasets(swapsChartMap), "Swaps by Algorithm");
+        showLineChart("Sorting Algorithm Comparisons", "Test Case", "Comparisons", combineDatasets(comparisonsChartMap), "Comparisons by Algorithm");
+    }
 
-        CategoryPlot plot = lineChart.getCategoryPlot();
+    public static void showLineChart(String title, String xAxisLabel, String yAxisLabel, DefaultCategoryDataset dataset, String frameTitle) {
+        JFreeChart chart = ChartFactory.createLineChart(title, xAxisLabel, yAxisLabel, dataset, PlotOrientation.VERTICAL, true, true, false);
+        CategoryPlot plot = chart.getCategoryPlot();
         LineAndShapeRenderer renderer = new LineAndShapeRenderer();
         plot.setRenderer(renderer);
 
@@ -104,9 +115,9 @@ public class StockPriceSorter {
                 org.jfree.chart.axis.CategoryLabelPositions.createUpRotationLabelPositions(Math.PI / 6.0));
         domainAxis.setMaximumCategoryLabelWidthRatio(0.8f);
 
-        JFrame frame = new JFrame("Sorting Times by Algorithm");
+        JFrame frame = new JFrame(frameTitle);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(new ChartPanel(lineChart));
+        frame.add(new ChartPanel(chart));
         frame.pack();
         frame.setVisible(true);
     }
@@ -128,8 +139,9 @@ public class StockPriceSorter {
 
     public static void printTableRow(String algorithm, String order, SortResult result) {
         double runtimeMicros = result.runtimeMicros;
-        System.out.printf("%-12s | %-15s | %-20.3f | %-10d | %-10d\n",
-                algorithm, order, runtimeMicros, result.swaps, result.comparisons);
+        System.out.printf("%-12s | %-15s | %-20d | %-10d | %-10d\n",
+                algorithm, order, (long) runtimeMicros, result.swaps, result.comparisons);
+
     }
 
     public static java.util.List<StockData> getListCopy(FilteredData data, String period) {
