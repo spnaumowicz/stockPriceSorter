@@ -15,3 +15,5 @@
 [04/09/2025] Created SortPerformanceTester.java - Joon
 
 [04/11/2025] HeapSort, MergeSort, and SortResultsPrinter Updated - Joon
+
+[04/13/2025] Finalizing it
