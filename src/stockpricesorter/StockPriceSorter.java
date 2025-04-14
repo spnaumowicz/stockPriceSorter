@@ -2,8 +2,17 @@ package stockpricesorter;
 
 import com.opencsv.*;
 import com.opencsv.exceptions.CsvValidationException;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
@@ -19,12 +28,12 @@ public class StockPriceSorter {
     }
 
     public static class SortResult {
-        public List<StockData> sortedList;
+        public java.util.List<StockData> sortedList;
         public int comparisons;
         public int swaps;
         public long runtimeMicros;
 
-        public SortResult(List<StockData> sortedList, int comparisons, int swaps, long runtimeMicros) {
+        public SortResult(java.util.List<StockData> sortedList, int comparisons, int swaps, long runtimeMicros) {
             this.sortedList = sortedList;
             this.comparisons = comparisons;
             this.swaps = swaps;
@@ -33,7 +42,7 @@ public class StockPriceSorter {
     }
 
     public static void main(String[] args) {
-        System.out.println("Welcome to Stock Price Sorter: Testing Heap, Merge, and Quick Sort with original, reversed, and randomized data.");
+        System.out.println("Welcome to Stock Price Sorter: Testing Heap, Merge, and Quick Sort with reversed, randomized, and partially randomized data.");
         String filePath = "S&P 500 Historical Data.csv";
         System.out.println("Looking for file at: " + new java.io.File(filePath).getAbsolutePath());
 
@@ -41,74 +50,89 @@ public class StockPriceSorter {
 
         String[] metrics = {"gain", "percent", "close"};
         String[] datasets = {"tenYear", "fiveYear", "oneYear"};
+        String[] dataTypes = {"Reversed", "Randomized", "PartiallyRand"};
 
-        Map<String, DefaultCategoryDataset> charts = new HashMap<>();
+        Map<String, DefaultCategoryDataset> chartMap = new HashMap<>();
 
         for (String metric : metrics) {
             for (String period : datasets) {
-                List<StockData> original = getListCopy(data, period);
-                List<StockData> reversed = reverseList(getListCopy(data, period));
-                List<StockData> randomized = fullyRandomize(getListCopy(data, period));
+                java.util.List<StockData> reversed = reverseList(getListCopy(data, period));
+                java.util.List<StockData> randomized = fullyRandomize(getListCopy(data, period));
+                java.util.List<StockData> partial = partiallyRandomize(getListCopy(data, period));
 
                 System.out.println("\n===== " + period.toUpperCase() + " / " + metric.toUpperCase() + " =====");
-                System.out.printf("%-12s | %-11s | %-20s | %-10s | %-10s\n", "Sort Type", "Data Order", "Time (microseconds)", "Swaps", "Comparisons");
-                System.out.println("---------------------------------------------------------------");
+                System.out.printf("%-12s | %-15s | %-20s | %-10s | %-10s\n", "Sort Type", "Data Order", "Time (microseconds)", "Swaps", "Comparisons");
+                System.out.println("-------------------------------------------------------------------------------");
 
-                // Original
-                SortResult heapOrig = runHeapSortWithMicros(original, metric);
-                SortResult mergeOrig = runMergeSortWithMicros(original, metric);
-                SortResult quickOrig = runQuickSortWithMicros(original, metric);
-                printTableRow("HeapSort", "Original", heapOrig);
-                printTableRow("MergeSort", "Original", mergeOrig);
-                printTableRow("QuickSort", "Original", quickOrig);
+                for (String type : dataTypes) {
+                    java.util.List<StockData> workingList;
+                    switch (type) {
+                        case "Reversed": workingList = reversed; break;
+                        case "Randomized": workingList = randomized; break;
+                        case "PartiallyRand": workingList = partial; break;
+                        default: continue;
+                    }
 
-                // Add to chart
-                String chartKey = period + ":" + metric;
-                DefaultCategoryDataset chart = new DefaultCategoryDataset();
-                chart.setValue(heapOrig.runtimeMicros / 1000.0, "HeapSort", period);
-                chart.setValue(mergeOrig.runtimeMicros / 1000.0, "MergeSort", period);
-                chart.setValue(quickOrig.runtimeMicros / 1000.0, "QuickSort", period);
-                charts.put(chartKey, chart);
+                    SortResult heap = runHeapSortWithMicros(new LinkedList<>(workingList), metric);
+                    SortResult merge = runMergeSortWithMicros(new LinkedList<>(workingList), metric);
+                    SortResult quick = runQuickSortWithMicros(new LinkedList<>(workingList), metric);
 
-                // Reversed
-                SortResult heapRev = runHeapSortWithMicros(reversed, metric);
-                SortResult mergeRev = runMergeSortWithMicros(reversed, metric);
-                SortResult quickRev = runQuickSortWithMicros(reversed, metric);
-                printTableRow("HeapSort", "Reversed", heapRev);
-                printTableRow("MergeSort", "Reversed", mergeRev);
-                printTableRow("QuickSort", "Reversed", quickRev);
+                    printTableRow("HeapSort", type, heap);
+                    printTableRow("MergeSort", type, merge);
+                    printTableRow("QuickSort", type, quick);
 
-                // Randomized
-                SortResult heapRand = runHeapSortWithMicros(randomized, metric);
-                SortResult mergeRand = runMergeSortWithMicros(randomized, metric);
-                SortResult quickRand = runQuickSortWithMicros(randomized, metric);
-                printTableRow("HeapSort", "Randomized", heapRand);
-                printTableRow("MergeSort", "Randomized", mergeRand);
-                printTableRow("QuickSort", "Randomized", quickRand);
+                    String label = period + "-" + metric + " (" + type + ")";
+                    chartMap.computeIfAbsent("HeapSort", k -> new DefaultCategoryDataset()).addValue(heap.runtimeMicros, "HeapSort", label);
+                    chartMap.computeIfAbsent("MergeSort", k -> new DefaultCategoryDataset()).addValue(merge.runtimeMicros, "MergeSort", label);
+                    chartMap.computeIfAbsent("QuickSort", k -> new DefaultCategoryDataset()).addValue(quick.runtimeMicros, "QuickSort", label);
+                }
             }
         }
 
-        // Display graphs for original data
-        for (Map.Entry<String, DefaultCategoryDataset> entry : charts.entrySet()) {
-            String key = entry.getKey();
-            DefaultCategoryDataset dataset = entry.getValue();
-            if (key.contains("gain")) {
-                ResultsVisualizer.initUI(dataset);
-            } else if (key.contains("percent")) {
-                ResultsVisualizer.initUR(dataset);
-            } else if (key.contains("close")) {
-                ResultsVisualizer.initUV(dataset);
+        JFreeChart lineChart = ChartFactory.createLineChart(
+                "Sorting Algorithm Performance (All Data Types)",
+                "Test Case", "Time (μs)",
+                combineDatasets(chartMap), PlotOrientation.VERTICAL,
+                true, true, false);
+
+        CategoryPlot plot = lineChart.getCategoryPlot();
+        LineAndShapeRenderer renderer = new LineAndShapeRenderer();
+        plot.setRenderer(renderer);
+
+        CategoryAxis domainAxis = plot.getDomainAxis();
+        domainAxis.setCategoryLabelPositions(
+                org.jfree.chart.axis.CategoryLabelPositions.createUpRotationLabelPositions(Math.PI / 6.0));
+        domainAxis.setMaximumCategoryLabelWidthRatio(0.8f);
+
+        JFrame frame = new JFrame("Sorting Times by Algorithm");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.add(new ChartPanel(lineChart));
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+    public static DefaultCategoryDataset combineDatasets(Map<String, DefaultCategoryDataset> datasets) {
+        DefaultCategoryDataset combined = new DefaultCategoryDataset();
+        for (DefaultCategoryDataset ds : datasets.values()) {
+            for (int row = 0; row < ds.getRowCount(); row++) {
+                Comparable rowKey = ds.getRowKey(row);
+                for (int col = 0; col < ds.getColumnCount(); col++) {
+                    Comparable columnKey = ds.getColumnKey(col);
+                    Number value = ds.getValue(rowKey, columnKey);
+                    combined.addValue(value, rowKey, columnKey);
+                }
             }
         }
+        return combined;
     }
 
     public static void printTableRow(String algorithm, String order, SortResult result) {
         double runtimeMicros = result.runtimeMicros;
-        System.out.printf("%-12s | %-11s | %-20.3f | %-10d | %-10d\n",
+        System.out.printf("%-12s | %-15s | %-20.3f | %-10d | %-10d\n",
                 algorithm, order, runtimeMicros, result.swaps, result.comparisons);
     }
 
-    public static List<StockData> getListCopy(FilteredData data, String period) {
+    public static java.util.List<StockData> getListCopy(FilteredData data, String period) {
         switch (period) {
             case "tenYear": return new LinkedList<>(data.tenYearList);
             case "fiveYear": return new LinkedList<>(data.fiveYearList);
@@ -158,31 +182,42 @@ public class StockPriceSorter {
         return result;
     }
 
-    public static List<StockData> fullyRandomize(List<StockData> data) {
-        Collections.shuffle(data);
+    public static java.util.List<StockData> fullyRandomize(java.util.List<StockData> data) {
+        java.util.Collections.shuffle(data);
         return data;
     }
 
-    public static List<StockData> reverseList(List<StockData> data) {
-        Collections.reverse(data);
+    public static java.util.List<StockData> partiallyRandomize(java.util.List<StockData> data) {
+        int swapCount = data.size() / 4;
+        java.util.Random rand = new java.util.Random();
+        for (int i = 0; i < swapCount; i++) {
+            int index1 = rand.nextInt(data.size());
+            int index2 = rand.nextInt(data.size());
+            java.util.Collections.swap(data, index1, index2);
+        }
         return data;
     }
 
-    public static SortResult runQuickSortWithMicros(List<StockData> data, String metric) {
+    public static java.util.List<StockData> reverseList(java.util.List<StockData> data) {
+        java.util.Collections.reverse(data);
+        return data;
+    }
+
+    public static SortResult runQuickSortWithMicros(java.util.List<StockData> data, String metric) {
         long start = System.nanoTime();
         SortResult result = QuickSort.runQuickSort(data, metric);
         long end = System.nanoTime();
         return new SortResult(result.sortedList, result.comparisons, result.swaps, (end - start) / 1000);
     }
 
-    public static SortResult runMergeSortWithMicros(List<StockData> data, String metric) {
+    public static SortResult runMergeSortWithMicros(java.util.List<StockData> data, String metric) {
         long start = System.nanoTime();
         SortResult result = MergeSort.runMergeSort(data, metric);
         long end = System.nanoTime();
         return new SortResult(result.sortedList, result.comparisons, result.swaps, (end - start) / 1000);
     }
 
-    public static SortResult runHeapSortWithMicros(List<StockData> data, String metric) {
+    public static SortResult runHeapSortWithMicros(java.util.List<StockData> data, String metric) {
         long start = System.nanoTime();
         SortResult result = HeapSort.runHeapSort(data, metric);
         long end = System.nanoTime();
