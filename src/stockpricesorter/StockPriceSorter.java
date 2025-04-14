@@ -22,13 +22,13 @@ public class StockPriceSorter {
         public List<StockData> sortedList;
         public int comparisons;
         public int swaps;
-        public long runtimeMillis;
+        public long runtimeMicros;
 
-        public SortResult(List<StockData> sortedList, int comparisons, int swaps, long runtimeMillis) {
+        public SortResult(List<StockData> sortedList, int comparisons, int swaps, long runtimeMicros) {
             this.sortedList = sortedList;
             this.comparisons = comparisons;
             this.swaps = swaps;
-            this.runtimeMillis = runtimeMillis;
+            this.runtimeMicros = runtimeMicros;
         }
     }
 
@@ -51,13 +51,13 @@ public class StockPriceSorter {
                 List<StockData> randomized = fullyRandomize(getListCopy(data, period));
 
                 System.out.println("\n===== " + period.toUpperCase() + " / " + metric.toUpperCase() + " =====");
-                System.out.printf("%-12s | %-11s | %-10s | %-10s | %-10s\n", "Sort Type", "Data Order", "Time (ms)", "Swaps", "Comparisons");
+                System.out.printf("%-12s | %-11s | %-20s | %-10s | %-10s\n", "Sort Type", "Data Order", "Time (microseconds)", "Swaps", "Comparisons");
                 System.out.println("---------------------------------------------------------------");
 
                 // Original
-                SortResult heapOrig = runHeapSort(original, metric);
-                SortResult mergeOrig = runMergeSort(original, metric);
-                SortResult quickOrig = runQuickSort(original, metric);
+                SortResult heapOrig = runHeapSortWithMicros(original, metric);
+                SortResult mergeOrig = runMergeSortWithMicros(original, metric);
+                SortResult quickOrig = runQuickSortWithMicros(original, metric);
                 printTableRow("HeapSort", "Original", heapOrig);
                 printTableRow("MergeSort", "Original", mergeOrig);
                 printTableRow("QuickSort", "Original", quickOrig);
@@ -65,20 +65,26 @@ public class StockPriceSorter {
                 // Add to chart
                 String chartKey = period + ":" + metric;
                 DefaultCategoryDataset chart = new DefaultCategoryDataset();
-                chart.setValue(heapOrig.runtimeMillis, "HeapSort", period);
-                chart.setValue(mergeOrig.runtimeMillis, "MergeSort", period);
-                chart.setValue(quickOrig.runtimeMillis, "QuickSort", period);
+                chart.setValue(heapOrig.runtimeMicros / 1000.0, "HeapSort", period);
+                chart.setValue(mergeOrig.runtimeMicros / 1000.0, "MergeSort", period);
+                chart.setValue(quickOrig.runtimeMicros / 1000.0, "QuickSort", period);
                 charts.put(chartKey, chart);
 
                 // Reversed
-                printTableRow("HeapSort", "Reversed", runHeapSort(reversed, metric));
-                printTableRow("MergeSort", "Reversed", runMergeSort(reversed, metric));
-                printTableRow("QuickSort", "Reversed", runQuickSort(reversed, metric));
+                SortResult heapRev = runHeapSortWithMicros(reversed, metric);
+                SortResult mergeRev = runMergeSortWithMicros(reversed, metric);
+                SortResult quickRev = runQuickSortWithMicros(reversed, metric);
+                printTableRow("HeapSort", "Reversed", heapRev);
+                printTableRow("MergeSort", "Reversed", mergeRev);
+                printTableRow("QuickSort", "Reversed", quickRev);
 
                 // Randomized
-                printTableRow("HeapSort", "Randomized", runHeapSort(randomized, metric));
-                printTableRow("MergeSort", "Randomized", runMergeSort(randomized, metric));
-                printTableRow("QuickSort", "Randomized", runQuickSort(randomized, metric));
+                SortResult heapRand = runHeapSortWithMicros(randomized, metric);
+                SortResult mergeRand = runMergeSortWithMicros(randomized, metric);
+                SortResult quickRand = runQuickSortWithMicros(randomized, metric);
+                printTableRow("HeapSort", "Randomized", heapRand);
+                printTableRow("MergeSort", "Randomized", mergeRand);
+                printTableRow("QuickSort", "Randomized", quickRand);
             }
         }
 
@@ -97,8 +103,9 @@ public class StockPriceSorter {
     }
 
     public static void printTableRow(String algorithm, String order, SortResult result) {
-        System.out.printf("%-12s | %-11s | %-10d | %-10d | %-10d\n",
-                algorithm, order, result.runtimeMillis, result.swaps, result.comparisons);
+        double runtimeMicros = result.runtimeMicros;
+        System.out.printf("%-12s | %-11s | %-20.3f | %-10d | %-10d\n",
+                algorithm, order, runtimeMicros, result.swaps, result.comparisons);
     }
 
     public static List<StockData> getListCopy(FilteredData data, String period) {
@@ -161,15 +168,24 @@ public class StockPriceSorter {
         return data;
     }
 
-    public static SortResult runQuickSort(List<StockData> data, String metric) {
-        return QuickSort.runQuickSort(data, metric);
+    public static SortResult runQuickSortWithMicros(List<StockData> data, String metric) {
+        long start = System.nanoTime();
+        SortResult result = QuickSort.runQuickSort(data, metric);
+        long end = System.nanoTime();
+        return new SortResult(result.sortedList, result.comparisons, result.swaps, (end - start) / 1000);
     }
 
-    public static SortResult runMergeSort(List<StockData> data, String metric) {
-        return MergeSort.runMergeSort(data, metric);
+    public static SortResult runMergeSortWithMicros(List<StockData> data, String metric) {
+        long start = System.nanoTime();
+        SortResult result = MergeSort.runMergeSort(data, metric);
+        long end = System.nanoTime();
+        return new SortResult(result.sortedList, result.comparisons, result.swaps, (end - start) / 1000);
     }
 
-    public static SortResult runHeapSort(List<StockData> data, String metric) {
-        return HeapSort.runHeapSort(data, metric);
+    public static SortResult runHeapSortWithMicros(List<StockData> data, String metric) {
+        long start = System.nanoTime();
+        SortResult result = HeapSort.runHeapSort(data, metric);
+        long end = System.nanoTime();
+        return new SortResult(result.sortedList, result.comparisons, result.swaps, (end - start) / 1000);
     }
 }
